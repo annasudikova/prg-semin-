@@ -1,0 +1,5 @@
+﻿UNO1.exe (CLR v4.0.30319: DefaultDomain): Načteno C:\WINDOWS\Microsoft.Net\assembly\GAC_32\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll. Nahrávání symbolů se vynechalo. Modul je optimalizovaný a volba Pouze můj kód je povolená.
+UNO1.exe (CLR v4.0.30319: DefaultDomain): Načteno C:\Users\Anička Sudíková\OneDrive\Dokumenty\seminar prg\UNO1\UNO1\bin\Debug\UNO1.exe. Symboly byly načteny.
+UNO1.exe (CLR v4.0.30319: UNO1.exe): Načteno C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Core\v4.0_4.0.0.0__b77a5c561934e089\System.Core.dll. Nahrávání symbolů se vynechalo. Modul je optimalizovaný a volba Pouze můj kód je povolená.
+UNO1.exe (CLR v4.0.30319: UNO1.exe): Načteno C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll. Nahrávání symbolů se vynechalo. Modul je optimalizovaný a volba Pouze můj kód je povolená.
+Program '[15232] UNO1.exe' skončil s kódem 0 (0x0).
