@@ -1,0 +1,286 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace UnoGame
+{
+    public abstract class Card
+    {
+        public string Color { get; set; }
+        public string Value { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Color} {Value}";
+        }
+    }
+
+    // Karta s číslem (čísla 0-9, Skip, Reverse, Draw2)
+    public class NumberCard : Card
+    {
+        public NumberCard(string color, string value)
+        {
+            Color = color;
+            Value = value;
+        }
+    }
+
+    // Balíček karet, obsahuje metody pro generování, zamíchání a tahání karet
+    public class Deck
+    {
+        public List<Card> Cards { get; set; }
+
+        public Deck()
+        {
+            Cards = new List<Card>();
+        }
+
+        // Generování standardního balíčku UNO
+        public void GenerateDeck()
+        {
+            string[] colors = { "Red", "Blue", "Green", "Yellow" };
+            string[] values = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw2" };
+
+            foreach (var color in colors)
+            {
+                foreach (var value in values)
+                {
+                    Cards.Add(new NumberCard(color, value));  // Přidání karty do balíčku
+                    if (value != "0")  // Každá karta kromě "0" je přidána dvakrát
+                        Cards.Add(new NumberCard(color, value));
+                }
+            }
+        }
+
+        // Zamíchání balíčku
+        public void Shuffle()
+        {
+            Random rng = new Random();
+            Cards = Cards.OrderBy(card => rng.Next()).ToList();  // Zamíchání karet
+        }
+
+        // Vytažení jedné karty z balíčku
+        public Card DrawCard()
+        {
+            var card = Cards.First();
+            Cards.RemoveAt(0);
+            return card;
+        }
+    }
+
+    // Hráč, má jméno a ruku karet
+    public class Player
+    {
+        public string Name { get; set; }
+        public List<Card> Hand { get; set; }
+
+        public Player(string name)
+        {
+            Name = name;
+            Hand = new List<Card>();
+        }
+
+        // Hráč si vytáhne kartu z balíčku
+        public void DrawCard(Deck deck)
+        {
+            if (deck.Cards.Count > 0)
+            {
+                Hand.Add(deck.DrawCard());
+            }
+        }
+
+        // Hráč zahraje kartu
+        public void PlayCard(Card card)
+        {
+            Hand.Remove(card);
+        }
+    }
+
+    // Hlavní třída pro řízení hry
+    public class Game
+    {
+        public List<Player> Players { get; set; }
+        public Deck GameDeck { get; set; }
+        public Card LastPlayedCard { get; set; }
+        public int CurrentPlayerIndex { get; set; }
+        public bool IsGameOver { get; set; }
+        public bool ReverseDirection { get; set; }
+
+        public Game()
+        {
+            Players = new List<Player>();
+            GameDeck = new Deck();
+            LastPlayedCard = null;
+            CurrentPlayerIndex = 0;
+            IsGameOver = false;
+            ReverseDirection = false;
+        }
+
+        // Hlavní smyčka hry
+        public void RunGameLoop()
+        {
+            while (!IsGameOver)
+            {
+                Console.Clear();
+                Player currentPlayer = Players[CurrentPlayerIndex];
+                Console.WriteLine($"Current Card: {LastPlayedCard}");
+                Console.WriteLine($"It's {currentPlayer.Name}'s turn!");
+
+                // Hráč zahraje svůj tah
+                PlayTurn(currentPlayer);
+
+                // Pokud hráč vyhrál (má prázdnou ruku), ukončíme hru
+                if (currentPlayer.Hand.Count == 0)
+                {
+                    Console.WriteLine($"{currentPlayer.Name} has won the game!");
+                    IsGameOver = true;
+                    return;
+                }
+
+                // Přesuneme se na dalšího hráče
+                NextPlayer();
+            }
+        }
+
+        // Hráč si vybere kartu a zahraje ji
+        private void PlayTurn(Player player)
+        {
+            Console.WriteLine("You have the following cards:");
+            for (int i = 0; i < player.Hand.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {player.Hand[i]}");
+            }
+
+            string input;
+            bool validInput = false;
+            while (!validInput)
+            {
+                Console.Write("Choose a card to play (1 - {0}) or press 'D' to draw a card: ", player.Hand.Count);
+                input = Console.ReadLine();
+
+                if (input.ToUpper() == "D")
+                {
+                    player.DrawCard(GameDeck);
+                    Console.WriteLine("You drew a card.");
+                    validInput = true;
+                }
+                else if (int.TryParse(input, out int cardIndex) && cardIndex >= 1 && cardIndex <= player.Hand.Count)
+                {
+                    Card chosenCard = player.Hand[cardIndex - 1];
+                    if (IsValidMove(chosenCard))
+                    {
+                        player.PlayCard(chosenCard);
+                        LastPlayedCard = chosenCard;
+                        HandleSpecialCard(chosenCard);  // Zpracování speciálních karet (např. Draw2, Draw4)
+                        validInput = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("This card can't be played.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please choose a valid card number or 'D' to draw.");
+                }
+            }
+
+            Console.Clear();
+            Console.WriteLine("Press Enter to continue...");
+            Console.ReadLine();
+        }
+
+        // Kontrola, zda je tah platný (barva nebo hodnota karty musí odpovídat poslední zahrané kartě)
+        private bool IsValidMove(Card card)
+        {
+            return card.Color == LastPlayedCard.Color || card.Value == LastPlayedCard.Value;
+        }
+
+        // Zpracování speciálních karet jako jsou "Reverse", "Draw2", "Draw4"
+        private void HandleSpecialCard(Card card)
+        {
+            if (card.Value == "Reverse")
+            {
+                ReverseDirection = !ReverseDirection;
+            }
+            // Zde přidáváme zpracování pro Draw2 a Draw4 karty
+            if (card.Value == "Draw2")
+            {
+                NextPlayer();  // Předání tahu dalšímu hráči
+                Player nextPlayer = Players[CurrentPlayerIndex];
+                nextPlayer.DrawCard(GameDeck);
+                nextPlayer.DrawCard(GameDeck);
+                Console.WriteLine($"{nextPlayer.Name} drew 2 cards.");
+            }
+            else if (card.Value == "Draw4")
+            {
+                NextPlayer();  // Předání tahu dalšímu hráči
+                Player nextPlayer = Players[CurrentPlayerIndex];
+                nextPlayer.DrawCard(GameDeck);
+                nextPlayer.DrawCard(GameDeck);
+                nextPlayer.DrawCard(GameDeck);
+                nextPlayer.DrawCard(GameDeck);
+                Console.WriteLine($"{nextPlayer.Name} drew 4 cards.");
+            }
+        }
+
+        // Přechod na dalšího hráče, směr tahů závisí na ReverseDirection
+        private void NextPlayer()
+        {
+            if (ReverseDirection)
+            {
+                CurrentPlayerIndex = (CurrentPlayerIndex - 1 + Players.Count) % Players.Count;
+            }
+            else
+            {
+                CurrentPlayerIndex = (CurrentPlayerIndex + 1) % Players.Count;
+            }
+        }
+    }
+
+    // Hlavní třída, kde se hra inicializuje a spustí
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine("Welcome to UNO!");
+
+            int playerCount;
+            do
+            {
+                Console.Write("Enter the number of players (at least 2): ");
+            } while (!int.TryParse(Console.ReadLine(), out playerCount) || playerCount < 2);
+
+            Game game = new Game();
+
+            // Získání jmen hráčů
+            for (int i = 0; i < playerCount; i++)
+            {
+                Console.Write($"Enter the name of player {i + 1}: ");
+                string name = Console.ReadLine()?.Trim();
+                if (string.IsNullOrEmpty(name)) name = $"Player {i + 1}";
+                game.Players.Add(new Player(name));
+            }
+
+            game.GameDeck.GenerateDeck();
+            game.GameDeck.Shuffle();
+
+            // Každý hráč si vytáhne 7 karet
+            foreach (var player in game.Players)
+            {
+                for (int j = 0; j < 7; j++)
+                {
+                    player.DrawCard(game.GameDeck);
+                }
+            }
+
+            game.LastPlayedCard = game.GameDeck.DrawCard();  // První karta na stole
+            Console.WriteLine($"First card: {game.LastPlayedCard}");
+
+            game.RunGameLoop();  // Spuštění hlavní smyčky hry
+
+            Console.WriteLine("Thank you for playing UNO!");
+        }
+    }
+}
