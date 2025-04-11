@@ -1,0 +1,10 @@
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\bin\Debug\malovani.exe.config
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\bin\Debug\malovani.exe
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\bin\Debug\malovani.pdb
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.csproj.AssemblyReference.cache
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.Form1.resources
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.Properties.Resources.resources
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.csproj.GenerateResource.cache
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.csproj.CoreCompileInputs.cache
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.exe
+C:\Users\Anička Sudíková\source\repos\malovani\malovani\obj\Debug\malovani.pdb
